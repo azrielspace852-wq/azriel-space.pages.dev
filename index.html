@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Azriel Space — Lab Eksperimen</title>
+    <meta name="description" content="Azriel Space adalah lingkungan staging dan pengembangan untuk proyek beta, uji coba, dan eksperimen sebelum menjadi produk komersial di AXION Neuralis." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+    <style>
+        /* ================================================================
+               RESET & BASE
+               ================================================================ */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-body: #f6f8fa;
+            --bg-card: #ffffff;
+            --bg-nav: rgba(255, 255, 255, 0.92);
+            --text-primary: #1a1a2e;
+            --text-secondary: #3d3d5c;
+            --text-muted: #6b6b8a;
+            --accent: #4a6fa5;
+            --accent-light: #6a8fc5;
+            --accent-glow: rgba(74, 111, 165, 0.08);
+            --border-light: #e2e6ed;
+            --shadow-card: 0 12px 48px -12px rgba(0, 0, 0, 0.06);
+            --radius: 20px;
+            --radius-sm: 12px;
+            --radius-xs: 8px;
+            --max-width: 820px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --transition: 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg-body);
+            color: var(--text-primary);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+        }
+
+        /* ================================================================
+               LOADING SCREEN
+               ================================================================ */
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: var(--bg-body);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loader-ring {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 3px solid var(--border-light);
+            border-top-color: var(--accent);
+            animation: spin 0.9s linear infinite;
+        }
+
+        .loader-text {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ================================================================
+               NAVIGATION
+               ================================================================ */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--bg-nav);
+            backdrop-filter: blur(14px) saturate(1.2);
+            -webkit-backdrop-filter: blur(14px) saturate(1.2);
+            border-bottom: 1px solid var(--border-light);
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-container {
+            max-width: var(--max-width);
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--accent);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-logo span {
+            font-weight: 300;
+            color: var(--text-muted);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .nav-link {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            padding: 4px 0;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-link:hover {
+            color: var(--accent);
+            border-bottom-color: var(--accent-light);
+        }
+
+        .nav-link.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .nav-link.axion-link {
+            color: var(--text-muted);
+            font-weight: 400;
+            background: var(--bg-body);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border-light);
+        }
+
+        .nav-link.axion-link:hover {
+            color: #2d2d5e;
+            border-color: #2d2d5e;
+            background: #f0f0f5;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-lang-select {
+            padding: 6px 14px;
+            border-radius: var(--radius-xs);
+            border: 1px solid var(--border-light);
+            background: var(--bg-card);
+            font-family: var(--font);
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .nav-lang-select:hover {
+            border-color: var(--accent-light);
+        }
+
+        .nav-lang-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* ================================================================
+               SPEAKER BUTTONS
+               ================================================================ */
+        .speaker-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-body);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .speaker-btn:hover {
+            background: var(--accent-glow);
+            color: var(--accent);
+        }
+
+        .speaker-btn.playing {
+            background: var(--accent);
+            color: #fff;
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .speaker-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .speaker-btn-large {
+            width: 42px;
+            height: 42px;
+        }
+
+        .speaker-btn-large svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .speaker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .speaker-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 0.03em;
+        }
+
+        /* ================================================================
+               MAIN CONTENT
+               ================================================================ */
+        main {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 32px 24px 60px;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 40px 0 32px;
+        }
+
+        .hero .badge {
+            display: inline-block;
+            padding: 4px 16px;
+            background: var(--accent-glow);
+            color: var(--accent);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .hero h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text-primary);
+        }
+
+        .hero h1 span {
+            color: var(--accent);
+        }
+
+        .hero .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 32px 36px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-card);
+            margin: 16px 0 24px;
+            position: relative;
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .card ul li {
+            padding: 4px 0 4px 20px;
+            position: relative;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .card ul li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .card .speaker-wrapper {
+            position: absolute;
+            top: 24px;
+            right: 28px;
+        }
+
+        .status-beta {
+            display: inline-block;
+            padding: 2px 12px;
+            background: #fef3c7;
+            color: #b45309;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #2d2d5e;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            margin-top: 8px;
+        }
+
+        .back-link:hover {
+            color: #4a4a7a;
+            gap: 10px;
+        }
+
+        .back-link .emoji {
+            font-size: 1.1rem;
+        }
+
+        /* ================================================================
+               FOOTER - DENGAN SEMUA LINK BARU
+               ================================================================ */
+        footer {
+            border-top: 1px solid var(--border-light);
+            padding: 28px 24px 24px;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 24px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .footer-left {
+            flex: 2;
+            min-width: 200px;
+        }
+
+        .footer-left .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 20px;
+            margin-bottom: 12px;
+        }
+
+        .footer-left .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        .footer-left .footer-links a:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        .footer-left .footer-links .wa-link {
+            color: #25a35a;
+        }
+        .footer-left .footer-links .wa-link:hover {
+            color: #1d7a42;
+        }
+        .footer-left .footer-links .telegram-link {
+            color: #0088cc;
+        }
+        .footer-left .footer-links .telegram-link:hover {
+            color: #006699;
+        }
+        .footer-left .footer-links .axion-link {
+            color: #2d2d5e;
+            font-weight: 600;
+        }
+        .footer-left .footer-links .axion-link:hover {
+            color: #4a4a7a;
+        }
+        .footer-left .footer-links .azriel-link {
+            color: #4a6fa5;
+            font-weight: 500;
+        }
+        .footer-left .footer-links .azriel-link:hover {
+            color: #3a5a8a;
+        }
+
+        .footer-left .footer-copyright {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .footer-left .footer-copyright .legal {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            opacity: 0.7;
+            line-height: 1.4;
+        }
+
+        .footer-right {
+            flex: 1;
+            min-width: 140px;
+            text-align: right;
+        }
+
+        .footer-right .footer-brand {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .footer-right .footer-brand span {
+            font-weight: 300;
+            color: var(--text-muted);
+        }
+
+        /* ================================================================
+               RESPONSIVE
+               ================================================================ */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            .card {
+                padding: 24px 20px;
+            }
+            .card .speaker-wrapper {
+                position: static;
+                margin-top: 12px;
+                justify-content: flex-end;
+            }
+            .nav-links {
+                gap: 12px;
+            }
+            .nav-link {
+                font-size: 0.75rem;
+            }
+            .nav-link.axion-link {
+                padding: 4px 10px;
+                font-size: 0.7rem;
+            }
+            footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .footer-right {
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 640px) {
+            nav {
+                padding: 0 16px;
+                height: 56px;
+            }
+            .nav-logo {
+                font-size: 0.85rem;
+            }
+            .nav-links {
+                gap: 8px;
+            }
+            .nav-link {
+                font-size: 0.65rem;
+            }
+            .nav-link.axion-link {
+                padding: 3px 8px;
+                font-size: 0.6rem;
+            }
+            .nav-controls {
+                gap: 8px;
+            }
+            .nav-lang-select {
+                font-size: 0.65rem;
+                padding: 4px 8px;
+            }
+            main {
+                padding: 16px 16px 40px;
+            }
+            .hero {
+                padding: 20px 0 16px;
+            }
+            .hero h1 {
+                font-size: 1.5rem;
+            }
+            .hero .subtitle {
+                font-size: 0.95rem;
+            }
+            .card {
+                padding: 18px 16px;
+            }
+            .card .speaker-wrapper {
+                justify-content: flex-start;
+            }
+            .footer-left .footer-links {
+                gap: 8px 14px;
+            }
+            .footer-left .footer-links a {
+                font-size: 0.7rem;
+                white-space: normal;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .nav-links {
+                gap: 4px;
+            }
+            .nav-link {
+                font-size: 0.55rem;
+            }
+            .nav-link.axion-link {
+                padding: 2px 6px;
+                font-size: 0.5rem;
+            }
+            .hero h1 {
+                font-size: 1.2rem;
+            }
+            .footer-left .footer-links {
+                gap: 6px 10px;
+            }
+            .footer-left .footer-links a {
+                font-size: 0.65rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================================================================
+    LOADING SCREEN
+    ================================================================ -->
+    <div id="loading-screen" role="status" aria-label="Memuat halaman">
+        <div class="loader-ring"></div>
+        <div class="loader-text">Azriel Space</div>
+    </div>
+
+    <!-- ================================================================
+    NAVIGATION
+    ================================================================ -->
+    <nav id="mainNav" style="display:none;">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                Azriel<span>Space</span>
+            </a>
+            <div class="nav-links">
+                <a href="#" class="nav-link active">Beranda</a>
+                <a href="https://axion-neuralis.pages.dev/" class="nav-link axion-link" target="_blank">
+                    ⚡ AXION Neuralis
+                </a>
+            </div>
+            <div class="nav-controls">
+                <select class="nav-lang-select" id="navLangSelect" aria-label="Pilih bahasa">
+                    <option value="id">Bahasa Indonesia</option>
+                    <option value="en">English (US)</option>
+                </select>
+                <button class="speaker-btn speaker-btn-large" id="playAllBtn" aria-label="Putar semua konten">
+                    <svg viewBox="0 0 24 24">
+                        <polygon points="5,3 19,12 5,21 5,3" />
+                        <line x1="19" y1="12" x2="19" y2="12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ================================================================
+    MAIN CONTENT
+    ================================================================ -->
+    <div id="document">
+        <main>
+            <div class="hero">
+                <span class="badge">🧪 Laboratorium Eksperimen</span>
+                <h1>Azriel <span>Space</span></h1>
+                <p class="subtitle">Tempat lahirnya ide-ide baru sebelum menjadi produk AXION Neuralis</p>
+            </div>
+
+            <!-- Card 1: Apa itu Azriel Space? + Speaker -->
+            <div class="card" id="azrielCard1">
+                <div class="speaker-wrapper">
+                    <span class="speaker-label">Dengarkan</span>
+                    <button class="speaker-btn" id="azrielSpeaker1" aria-label="Putar deskripsi Azriel Space">
+                        <svg viewBox="0 0 24 24">
+                            <polygon points="5,3 19,12 5,21 5,3" />
+                            <line x1="19" y1="12" x2="19" y2="12" />
+                        </svg>
+                    </button>
+                </div>
+                <h3 id="card1Title">📌 Apa itu Azriel Space?</h3>
+                <div id="azrielContent1">
+                    <!-- diisi JS -->
+                </div>
+            </div>
+
+            <!-- Card 2: Status Saat Ini -->
+            <div class="card" id="card2">
+                <h3 id="card2Title">🚀 Status Saat Ini</h3>
+                <div id="azrielContent2">
+                    <!-- diisi JS -->
+                </div>
+            </div>
+
+            <!-- Card 3: Hubungan dengan AXION Neuralis -->
+            <div class="card" id="card3">
+                <h3 id="card3Title">🔗 Hubungan dengan AXION Neuralis</h3>
+                <div id="azrielContent3">
+                    <!-- diisi JS -->
+                </div>
+                <a href="https://axion-neuralis.pages.dev/" target="_blank" class="back-link" id="backLink">
+                    <span class="emoji">⬅</span> <span id="backLinkText">Kembali ke AXION Neuralis</span>
+                </a>
+            </div>
+        </main>
+
+        <!-- ================================================================
+        FOOTER DENGAN SEMUA LINK BARU
+        ================================================================ -->
+        <footer>
+            <div class="footer-left">
+                <div class="footer-links">
+                    <!-- Link ke Website -->
+                    <a href="https://cutt.ly/Eyukdpcq" target="_blank" class="axion-link">🌐 AXION Neuralis</a>
+                    <a href="https://cutt.ly/1yuQVFhf" target="_blank" class="azriel-link">🌐 Azriel Space</a>
+
+                    <!-- Saluran WhatsApp -->
+                    <a href="https://cutt.ly/xyuGKF4M" target="_blank" class="wa-link">💬 WA (azriel.py)</a>
+
+                    <!-- Grup WhatsApp -->
+                    <a href="https://cutt.ly/PyuGXYgP" target="_blank" class="wa-link">👥 Grup WA AXION</a>
+                    <a href="https://cutt.ly/6yuGVgXp" target="_blank" class="wa-link">👥 Grup WA Azriel Space</a>
+
+                    <!-- Grup Telegram -->
+                    <a href="https://t.me/azrielpyy" target="_blank" class="telegram-link">📱 Telegram azriel.py</a>
+                    <a href="https://t.me/azrielspace" target="_blank" class="telegram-link">📱 Telegram Azriel Space</a>
+                    <a href="https://t.me/axionneuralis" target="_blank" class="telegram-link">📱 Telegram AXION</a>
+
+                    <!-- Email -->
+                    <a href="mailto:azrielspace852@gmail.com">✉️ Email</a>
+                </div>
+                <div class="footer-copyright">
+                    <span>&copy; 2026 Azriel Space. Hak Cipta Dilindungi.</span>
+                    <span class="legal">Bagian dari ekosistem AXION Neuralis.</span>
+                </div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-brand">
+                    Azriel<span>Space</span>
+                </div>
+                <div style="margin-top:4px;font-size:0.7rem;color:var(--text-muted);">
+                    Lab Eksperimen
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ================================================================
+    JAVASCRIPT
+    ================================================================ -->
+    <script>
+        // ================================================================
+        // DATA KONTEN - 2 BAHASA (SEMUA KARTU)
+        // ================================================================
+        const CONTENT = {
+            id: {
+                description: `
+                    <p><strong>Azriel Space</strong> adalah lingkungan <strong>staging dan pengembangan</strong> untuk semua proyek 
+                    yang masih dalam tahap <strong>beta, uji coba, dan eksperimen</strong>. Di sini, kami bebas 
+                    bereksperimen, melakukan iterasi, dan menguji konsep sebelum produk siap naik ke 
+                    <strong>AXION Neuralis</strong> sebagai versi production.</p>
+                    <p style="margin-top:8px;">Di sinilah inovasi dimulai — tempat bermain untuk ide-ide yang kelak akan 
+                    menjadi produk komersial.</p>
+                `,
+                status: `
+                    <ul>
+                        <li><strong>Dokumentasi:</strong> Sedang dalam proses penyusunan <span class="status-beta">BETA</span></li>
+                        <li><strong>Proyek aktif:</strong> Berbagai aplikasi dan eksperimen AI dalam pengembangan</li>
+                        <li><strong>Fokus:</strong> Otomatisasi, debugging, dan solusi berbasis AI</li>
+                    </ul>
+                    <p style="margin-top:12px;color:var(--text-muted);font-size:0.9rem;">
+                        📝 Dokumentasi lengkap akan segera hadir. Pantau terus!
+                    </p>
+                `,
+                relationship: `
+                    <p>
+                        Produk yang telah matang dan lolos uji coba di Azriel Space akan <strong>naik kelas</strong> 
+                        menjadi produk resmi di <strong>AXION Neuralis</strong>. Ini adalah proses <em>staging</em> yang memastikan 
+                        hanya solusi terbaik yang sampai ke pengguna.
+                    </p>
+                `,
+                backLink: 'Kembali ke AXION Neuralis',
+                card1Title: '📌 Apa itu Azriel Space?',
+                card2Title: '🚀 Status Saat Ini',
+                card3Title: '🔗 Hubungan dengan AXION Neuralis'
+            },
+            en: {
+                description: `
+                    <p><strong>Azriel Space</strong> is the <strong>staging and development environment</strong> for all projects 
+                    that are still in <strong>beta, trial, and experimental</strong> stages. Here, we are free to experiment, 
+                    iterate, and test concepts before the product is ready to be promoted to 
+                    <strong>AXION Neuralis</strong> as a production version.</p>
+                    <p style="margin-top:8px;">This is where innovation begins — a sandbox for ideas that will one day become 
+                    commercial products.</p>
+                `,
+                status: `
+                    <ul>
+                        <li><strong>Documentation:</strong> Currently in preparation <span class="status-beta">BETA</span></li>
+                        <li><strong>Active projects:</strong> Various AI applications and experiments in development</li>
+                        <li><strong>Focus:</strong> Automation, debugging, and AI-based solutions</li>
+                    </ul>
+                    <p style="margin-top:12px;color:var(--text-muted);font-size:0.9rem;">
+                        📝 Complete documentation coming soon. Stay tuned!
+                    </p>
+                `,
+                relationship: `
+                    <p>
+                        Products that have matured and passed trials in Azriel Space will <strong>graduate</strong> 
+                        to become official products at <strong>AXION Neuralis</strong>. This is a <em>staging</em> process that ensures 
+                        only the best solutions reach users.
+                    </p>
+                `,
+                backLink: 'Back to AXION Neuralis',
+                card1Title: '📌 What is Azriel Space?',
+                card2Title: '🚀 Current Status',
+                card3Title: '🔗 Relationship with AXION Neuralis'
+            }
+        };
+
+        // ================================================================
+        // DOM REFS
+        // ================================================================
+        const loadingScreen = document.getElementById('loading-screen');
+        const mainNav = document.getElementById('mainNav');
+        const navLangSelect = document.getElementById('navLangSelect');
+        const playAllBtn = document.getElementById('playAllBtn');
+        const azrielContent1 = document.getElementById('azrielContent1');
+        const azrielContent2 = document.getElementById('azrielContent2');
+        const azrielContent3 = document.getElementById('azrielContent3');
+        const azrielSpeaker1 = document.getElementById('azrielSpeaker1');
+        const card1Title = document.getElementById('card1Title');
+        const card2Title = document.getElementById('card2Title');
+        const card3Title = document.getElementById('card3Title');
+        const backLinkText = document.getElementById('backLinkText');
+
+        // ================================================================
+        // STATE
+        // ================================================================
+        let currentLang = 'id';
+        let currentAudio = null;
+        let isPlayingAll = false;
+
+        // ================================================================
+        // LOADING
+        // ================================================================
+        setTimeout(() => {
+            loadingScreen.classList.add('hidden');
+            mainNav.style.display = 'flex';
+            renderContent(currentLang);
+            navLangSelect.value = currentLang;
+            updatePlayAllButton();
+        }, 2000);
+
+        // ================================================================
+        // RENDER CONTENT (SEMUA KARTU BERUBAH)
+        // ================================================================
+        function renderContent(lang) {
+            const data = CONTENT[lang];
+            if (!data) return;
+
+            // Kartu 1
+            azrielContent1.innerHTML = data.description;
+            card1Title.textContent = data.card1Title;
+
+            // Kartu 2
+            azrielContent2.innerHTML = data.status;
+            card2Title.textContent = data.card2Title;
+
+            // Kartu 3
+            azrielContent3.innerHTML = data.relationship;
+            card3Title.textContent = data.card3Title;
+            backLinkText.textContent = data.backLink;
+        }
+
+        // ================================================================
+        // AUDIO PLAYER (Azriel Space - /assets/audio2/)
+        // ================================================================
+        let azrielAudio = null;
+
+        function toggleAudioAzriel(btn) {
+            if (azrielAudio && !azrielAudio.paused) {
+                azrielAudio.pause();
+                azrielAudio.currentTime = 0;
+                azrielAudio = null;
+                btn.classList.remove('playing');
+                updatePlayAllButton();
+                return;
+            }
+
+            if (azrielAudio) {
+                azrielAudio.pause();
+                azrielAudio = null;
+            }
+
+            const lang = currentLang;
+            const audioFile = `tp1${lang === 'en' ? 'E' : 'I'}.mp3`;
+            const audio = new Audio(`/assets/audio2/${audioFile}`);
+            audio.volume = 1.0;
+
+            audio.addEventListener('play', function() {
+                btn.classList.add('playing');
+                azrielAudio = this;
+                updatePlayAllButton();
+            });
+
+            audio.addEventListener('ended', function() {
+                btn.classList.remove('playing');
+                azrielAudio = null;
+                updatePlayAllButton();
+            });
+
+            audio.addEventListener('error', function() {
+                btn.classList.remove('playing');
+                azrielAudio = null;
+                updatePlayAllButton();
+                console.warn('Azriel audio error:', audioFile);
+            });
+
+            audio.play().catch(err => {
+                console.warn('Azriel playback error:', err);
+                btn.classList.remove('playing');
+            });
+
+            azrielAudio = audio;
+        }
+
+        function stopAudio() {
+            if (azrielAudio) {
+                azrielAudio.pause();
+                azrielAudio.currentTime = 0;
+                azrielAudio = null;
+            }
+            document.querySelectorAll('.speaker-btn.playing').forEach(b => b.classList.remove('playing'));
+            isPlayingAll = false;
+            updatePlayAllButton();
+        }
+
+        // ================================================================
+        // PLAY ALL
+        // ================================================================
+        function updatePlayAllButton() {
+            const isAnyPlaying = document.querySelector('.speaker-btn.playing') !== null;
+            if (isAnyPlaying || isPlayingAll) {
+                playAllBtn.classList.add('playing');
+                playAllBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <rect x="6" y="4" width="4" height="16" />
+                        <rect x="14" y="4" width="4" height="16" />
+                    </svg>
+                `;
+            } else {
+                playAllBtn.classList.remove('playing');
+                playAllBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <polygon points="5,3 19,12 5,21 5,3" />
+                        <line x1="19" y1="12" x2="19" y2="12" />
+                    </svg>
+                `;
+            }
+        }
+
+        playAllBtn.addEventListener('click', function() {
+            toggleAudioAzriel(azrielSpeaker1);
+        });
+
+        // ================================================================
+        // EVENT: Azriel Speaker
+        // ================================================================
+        azrielSpeaker1.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleAudioAzriel(this);
+        });
+
+        // ================================================================
+        // NAV LANGUAGE CHANGE (SEMUA KONTEN BERUBAH)
+        // ================================================================
+        navLangSelect.addEventListener('change', function() {
+            const newLang = this.value;
+            if (newLang !== currentLang) {
+                stopAudio();
+                currentLang = newLang;
+                renderContent(currentLang);
+                updatePlayAllButton();
+            }
+        });
+
+        // ================================================================
+        // KEYBOARD SHORTCUTS
+        // ================================================================
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                stopAudio();
+                updatePlayAllButton();
+            }
+        });
+
+        // ================================================================
+        // INIT
+        // ================================================================
+        console.log('Azriel Space — Lab Eksperimen loaded.');
+        console.log('📁 Audio folder: /assets/audio2/');
+        console.log('📁 File audio: tp1I.mp3 (ID) & tp1E.mp3 (EN)');
+        console.log('🔗 Link ke AXION Neuralis: https://axion-neuralis.pages.dev/');
+        console.log('📱 Semua link WhatsApp & Telegram sudah di footer.');
+        console.log('Current language:', currentLang);
+    </script>
+
+</body>
+</html>
